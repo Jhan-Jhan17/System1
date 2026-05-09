@@ -1,128 +1,265 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>FoundIt: Central Campus</title>
+    <title>FOUNDIT: Central Campus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --bsu-red: #8B0000; --bsu-gold: #FFD700; --light-gray: #f4f4f4; }
-        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light-gray); }
+        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light-gray); position: relative; min-height: 100vh; }
         
-        nav { width: 80px; background: var(--bsu-red); height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 20px; position: fixed; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('/images/foundit-logo.png') no-repeat center center;
+            background-size: 40%; opacity: 0.5; z-index: -1;
+        }
+        
+        nav { width: 80px; background: var(--bsu-red); height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 20px; position: fixed; z-index: 10; }
         nav i { color: white; margin-bottom: 30px; font-size: 24px; cursor: pointer; opacity: 0.7; transition: 0.3s; }
         nav i:hover { opacity: 1; color: var(--bsu-gold); }
 
-        main { margin-left: 80px; width: 100%; }
-        header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        main { margin-left: 80px; width: 100%; z-index: 1; }
+        header { background: rgba(255, 255, 255, 0.95); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         
-        .search-section { background: var(--bsu-red); padding: 40px; color: white; margin: 20px; border-radius: 15px; }
+        .search-section { background: rgba(139, 0, 0, 0.95); padding: 40px; color: white; margin: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .search-bar { background: white; border-radius: 8px; display: flex; padding: 10px; margin-top: 15px; }
         .search-bar input { border: none; width: 100%; outline: none; padding-left: 10px; }
 
         .grid-container { padding: 20px; }
-        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .item-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding-bottom: 15px; }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .item-card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15); padding-bottom: 15px; display: flex; flex-direction: column; border: 1px solid #eee; }
         .item-img { width: 100%; height: 150px; background: #ddd; object-fit: cover; }
-        .item-info { padding: 12px; }
+        .item-info { padding: 12px; flex-grow: 1; }
         
-        /* Dynamic Status Badge Colors */
-        .status-AVAILABLE { background: #28a745; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
-        .status-CLAIMING { background: #fd7e14; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; }
-        
-        .btn-report { background: var(--bsu-red); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .status-AVAILABLE { background: #28a745; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;}
+        .status-CLAIMING { background: #fd7e14; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;}
+        .status-RETURNED { background: #6c757d; color: white; padding: 4px 8px; border-radius: 20px; font-size: 12px; font-weight: bold;}
+        .category-tag { background: #eee; color: #555; padding: 3px 6px; border-radius: 4px; font-size: 11px; margin-bottom: 8px; display: inline-block; font-weight: bold; }
+        .btn-report { background: var(--bsu-red); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .btn-report:hover { background: #600000; }
     </style>
 </head>
 <body>
-
     <nav>
-        <i class="fa-solid fa-house" title="Dashboard"></i>
-        <i class="fa-solid fa-user" title="My Profile"></i>
-        <i class="fa-solid fa-folder-open" title="My Items"></i>
-        <i class="fa-solid fa-gear" title="Settings"></i>
+        <a href="/student"><i class="fa-solid fa-house" title="Dashboard"></i></a>
+        <a href="/contact"><i class="fa-solid fa-envelope" title="Contact Admin"></i></a>
+        <a href="/logout" style="color: #FFD700; text-decoration: none; margin-top: auto; margin-bottom: 20px;"><i class="fa-solid fa-right-from-bracket" title="Log Out"></i></a>
     </nav>
 
     <main>
         <header>
-            <h2 style="color: var(--bsu-red); margin: 0;">FoundIt: Central Campus Lost & Found</h2>
-            <div>Welcome, <strong>Student!</strong> <i class="fa-solid fa-circle-user"></i></div>
+            <div style="display: flex; align-items: center;">
+                <img th:src="@{/images/foundit-logo.png}" alt="Logo" style="height: 45px; margin-right: 15px;">
+                <h2 style="color: var(--bsu-red); margin: 0; font-size: 28px; letter-spacing: 1px;">FOUNDIT</h2>
+            </div>
+            <div>Welcome, <strong>Student!</strong> <i class="fa-solid fa-circle-user" style="color: var(--bsu-red); font-size: 18px; margin-left: 5px;"></i></div>
         </header>
 
         <section class="search-section">
             <h3 style="margin-top: 0;">Find Your Lost Item</h3>
-            <div class="search-bar">
+            <form th:action="@{/student}" method="get" class="search-bar">
                 <i class="fa-solid fa-magnifying-glass" style="color: #666; align-self: center;"></i>
-                <input type="text" placeholder="Search by ID, Gadget, Color...">
-            </div>
+                <input type="text" name="keyword" placeholder="Search by ID, Gadget, Color..." th:value="${param.keyword}">
+                <button type="submit" style="display: none;">Search</button>
+            </form>
         </section>
 
         <div class="grid-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h4 style="margin: 0;">Recently Found Items <span style="background: var(--bsu-gold); font-size: 10px; padding: 2px 5px; border-radius: 3px;">SystemTracker Active</span></h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 8px;">
+                <h4 style="margin: 0; color: #333;">Recently Found Items <span style="background: var(--bsu-gold); color: black; font-size: 10px; padding: 3px 6px; border-radius: 4px; margin-left: 10px;">SystemTracker Active</span></h4>
                 <button class="btn-report" onclick="document.getElementById('reportModal').style.display='block'">+ Report Lost Item</button>
             </div>
             
             <div class="item-grid">
-                <!-- THYMELEAF LOOP: This creates a card for every item in the database -->
                 <div class="item-card" th:each="item : ${items}">
-                    <!-- Placeholder image until Module 3 is built -->
-                    <img src="https://via.placeholder.com/200x150?text=No+Image" class="item-img">
+                    
+                    <img th:if="${item.imageFilename != null}" th:src="@{'/uploads/' + ${item.imageFilename}}" class="item-img" style="object-fit: cover;">
+                    <img th:unless="${item.imageFilename != null}" src="https://via.placeholder.com/200x150?text=No+Image" class="item-img">
+                    
                     <div class="item-info">
-                        <strong th:text="${item.name}">Item Name</strong><br>
-                        <small th:text="'Location: ' + ${item.locationFound}">Location</small><br>
-                        <small th:text="'Logged: ' + ${item.dateLogged}">Date</small><br><br>
-                        <!-- Dynamic CSS class based on status -->
+                        <span class="category-tag"><i class="fa-solid fa-tag"></i> Found Item</span><br>
+                        <strong th:text="${item.name}" style="font-size: 18px; color: #222;">Item Name</strong><br>
+                        <small style="color: #666;" th:text="'Location: ' + ${item.locationFound}">Location</small><br>
+                        <small style="color: #666;" th:text="'Logged: ' + ${item.dateLogged}">Date</small><br><br>
                         <span th:class="'status-' + ${item.status}" th:text="${item.status}">STATUS</span>
+
+                        <div th:if="${item.status == 'AVAILABLE'}" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                            
+                            <!-- UPDATED: Added enctype for file upload -->
+                            <form th:action="@{/claim/{id}(id=${item.id})}" method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                                
+                                <input type="text"
+                                name="studentId"
+                                placeholder="University ID (e.g., 21-12345)"
+                                required
+                                style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+
+                                <input type="text"
+                                name="ownershipDetails"
+                                placeholder="Ownership Proof (e.g., Serial #)"
+                                required
+                                style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px;">
+
+                                <!-- NEW: Image Proof Input -->
+                                <div style="margin-top: 5px; text-align: left;">
+                                    <label style="font-size: 11px; color: #666; font-weight: bold;">ATTACH IMAGE PROOF (Optional):</label>
+                                    <input type="file" name="proofFile" accept="image/*" style="font-size: 12px; margin-top: 3px; width: 100%;">
+                                </div>
+
+                                <button type="submit"
+                                        style="background: var(--bsu-gold); color: black; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                                    Claim This Item
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-<!-- REPORT ITEM MODAL -->
-    <div id="reportModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:white; padding:30px; border-radius:10px; width:400px; margin: 10% auto; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            
+
+    <!-- REPORT ITEM MODAL -->
+    <div id="reportModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:white; padding:30px; border-radius:10px; width:450px; margin: 5% auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--bsu-red); padding-bottom:10px; margin-bottom:20px;">
                 <h3 style="margin:0; color:var(--bsu-red);">Report Lost Item</h3>
-                <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:20px;" onclick="document.getElementById('reportModal').style.display='none'"></i>
+                <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:20px; color: #888;" onclick="document.getElementById('reportModal').style.display='none'"></i>
             </div>
-
-            <!-- Notice enctype="multipart/form-data" - this is REQUIRED for image uploads -->
-            <form th:action="@{/report}" th:object="${newItem}" method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:15px;">
+            <form th:action="@{/report}" th:object="${newItem}" method="post" enctype="multipart/form-data" onsubmit="combineLocation()" style="display:flex; flex-direction:column; gap:15px;">
                 
                 <div>
-                    <label>Item Name</label><br>
-                    <input type="text" th:field="*{name}" placeholder="e.g. Acer Laptop" required style="width:95%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                    <label style="font-weight: bold; font-size: 14px;">Item Name</label><br>
+                    <input type="text" th:field="*{name}" placeholder="e.g. Acer Laptop" required style="width:95%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-top: 5px;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; font-size: 14px;">Your Contact Info (FB Link / Phone)</label><br>
+                    <input type="text" th:field="*{reporterContact}" placeholder="e.g., 09123456789 or fb.com/juan" required style="width:95%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-top: 5px;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; font-size: 14px;">Description</label><br>
+                    <textarea th:field="*{description}" placeholder="Specific details, color, etc." required style="width:95%; padding:10px; border:1px solid #ccc; border-radius:4px; height: 60px; margin-top: 5px;"></textarea>
                 </div>
 
                 <div>
-                    <label>Description</label><br>
-                    <textarea th:field="*{description}" placeholder="Specific details, color, etc." required style="width:95%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea>
-                </div>
-
-                <div>
-                    <label>Location Found</label><br>
-                    <select th:field="*{locationFound}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                        <option value="CICS Office">CICS Office</option>
-                        <option value="Admin Hall">Admin Hall</option>
-                        <option value="Library">Library</option>
-                        <option value="Gym">Gym</option>
+                    <label style="font-weight: bold; font-size: 14px;">Location Found</label><br>
+                    <select id="buildingSelect" onchange="toggleFloorSelect()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-top: 5px;">
+                        <option value="AEB Building">AEB Building</option>
+                        <option value="CICS Building">CICS Building</option>
+                        <option value="CET Building">CET Building</option>
+                        <option value="STEER HUB">STEER HUB</option>
+                        <option value="STUDENT REGISTRAR">STUDENT REGISTRAR</option>
+                        <option value="LIBRARY">LIBRARY</option>
+                        <option value="SPARTAN GYM">SPARTAN GYM</option>
+                        <option value="CICS STUDENT AREA">CICS STUDENT AREA</option>
+                        <option value="CANTEEN">CANTEEN</option>
                     </select>
                 </div>
 
-                <div style="border: 2px dashed #ccc; padding: 20px; text-align: center; border-radius: 5px; background: #f9f9f9;">
-                    <label style="cursor:pointer; color:var(--bsu-red); font-weight:bold;">
-                        <i class="fa-solid fa-upload"></i> Upload Item Image
-                        <input type="file" name="imageFile" style="display:none;">
-                    </label>
+                <div id="floorDiv">
+                    <label style="font-weight: bold; font-size: 14px;">Floor Number</label><br>
+                    <select id="floorSelect" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-top: 5px;">
+                        <option value="Floor 1">Floor 1</option>
+                        <option value="Floor 2">Floor 2</option>
+                        <option value="Floor 3">Floor 3</option>
+                        <option value="Floor 4">Floor 4</option>
+                        <option value="Floor 5">Floor 5</option>
+                    </select>
                 </div>
 
-                <button type="submit" style="background:var(--bsu-red); color:white; padding:12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-top:10px;">Submit Report</button>
+                <input type="hidden" th:field="*{locationFound}" id="actualLocation">
+                
+                <div style="border: 2px dashed #bbb; padding: 20px; text-align: center; border-radius: 8px; background: #f8f9fa; margin-top: 5px; display: flex; flex-direction: column; align-items: center;">
+                    
+                    <label id="uploadLabel" style="cursor:pointer; color:var(--bsu-red); font-weight:bold; font-size: 15px; width: 100%;">
+                        <i id="uploadIcon" class="fa-solid fa-cloud-arrow-up" style="font-size: 24px; display: block; margin-bottom: 10px;"></i> 
+                        <span id="uploadText">Upload Item Image</span>
+                        <input type="file" name="imageFile" id="imageInput" style="display:none;" accept="image/*" onchange="previewImage(event)">
+                    </label>
+
+                    <img id="imagePreview" src="#" alt="Preview" style="display:none; max-width: 100%; max-height: 150px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 10px;">
+                    
+                    <button type="button" id="removeImageBtn" onclick="removeImage()" style="display:none; background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 15px; font-weight: bold;">
+                        <i class="fa-solid fa-trash"></i> Remove Image
+                    </button>
+                </div>
+
+                <button type="submit" style="background:var(--bsu-red); color:white; padding:14px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; margin-top:10px; font-size: 16px;">Submit Report</button>
             </form>
         </div>
     </div>
     
     <script>
-        // Make sure popup starts hidden
         document.getElementById('reportModal').style.display = 'none';
+        
+        function toggleFloorSelect() {
+            const building = document.getElementById('buildingSelect').value;
+            const floorDiv = document.getElementById('floorDiv');
+            const needsFloor = ['AEB Building', 'CICS Building', 'CET Building', 'STEER HUB'].includes(building);
+            
+            if(needsFloor) {
+                floorDiv.style.display = 'block';
+            } else {
+                floorDiv.style.display = 'none';
+            }
+        }
+        
+        function combineLocation() {
+            const building = document.getElementById('buildingSelect').value;
+            const floor = document.getElementById('floorSelect').value;
+            const actualLocation = document.getElementById('actualLocation');
+            
+            const needsFloor = ['AEB Building', 'CICS Building', 'CET Building', 'STEER HUB'].includes(building);
+
+            if(needsFloor) {
+                actualLocation.value = building + " (" + floor + ")"; 
+            } else {
+                actualLocation.value = building; 
+            }
+        }
+        toggleFloorSelect();
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const uploadText = document.getElementById('uploadText');
+            const icon = document.getElementById('uploadIcon');
+            const removeBtn = document.getElementById('removeImageBtn');
+
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    alert("⚠️ Upload Error: Please select a valid image file (JPG, PNG, etc.).");
+                    removeImage();
+                    return;
+                }
+
+                const maxSizeInBytes = 10 * 1024 * 1024;
+                if (file.size > maxSizeInBytes) {
+                    alert("⚠️ Upload Error: This image is too large! Please select an image smaller than 10MB.");
+                    removeImage();
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    removeBtn.style.display = 'inline-block';
+                    
+                    uploadText.style.display = 'none';
+                    icon.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            document.getElementById('imageInput').value = ""; 
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('imagePreview').src = "#";
+            document.getElementById('removeImageBtn').style.display = 'none';
+            
+            document.getElementById('uploadText').style.display = 'inline';
+            document.getElementById('uploadIcon').style.display = 'block';
+        }
     </script>
 </body>
 </html>

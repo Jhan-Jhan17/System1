@@ -13,10 +13,12 @@ public class Item {
     
     private String name;
     private String description;
+    private String reporterContact;
     private String locationFound;
     private String category;
-    private String status = "AVAILABLE"; 
+    private String status = "AVAILABLE";
     private String imageFilename;
+    private String studentId;
     private LocalDate dateLogged = LocalDate.now();
 
     // OOP Relationship: Many Items can be reported by One User

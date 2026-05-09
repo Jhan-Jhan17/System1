@@ -1,14 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -18,20 +11,21 @@ public class ClaimRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // The student making the claim
     @ManyToOne
-    @JoinColumn(name = "student_id")
+    @JoinColumn(name = "user_id") 
     private User student;
 
-    // The item they are trying to claim
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @Column(columnDefinition = "TEXT")
-    private String ownershipDetails; // e.g., "It has a scratch on the back"
+    private String studentId;
+    private String claimToken;
+    private String proofImage; // Stores the filename of the uploaded image
 
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
-    
+    @Column(columnDefinition = "TEXT")
+    private String ownershipDetails;
+
+    private String status = "PENDING";
     private LocalDateTime requestDate = LocalDateTime.now();
 }

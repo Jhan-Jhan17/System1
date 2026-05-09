@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>FOUNDIT: My Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bsu-red: #8B0000; --bsu-gold: #FFD700; --light-gray: #f4f4f4; }
+        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light-gray); position: relative; min-height: 100vh; }
+        
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('/images/foundit-logo.png') no-repeat center center;
+            background-size: 40%; opacity: 0.5; z-index: -1;
+        }
+        
+        nav { width: 80px; background: var(--bsu-red); height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 20px; position: fixed; z-index: 10; }
+        nav i { color: white; margin-bottom: 30px; font-size: 24px; cursor: pointer; opacity: 0.7; transition: 0.3s; }
+        nav i:hover { opacity: 1; color: var(--bsu-gold); }
+        .active-icon { color: var(--bsu-gold) !important; opacity: 1 !important; border-right: 3px solid var(--bsu-gold); padding-right: 5px;}
+
+        main { margin-left: 80px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; padding-top: 50px;}
+        
+        .profile-card { background: rgba(255, 255, 255, 0.95); width: 500px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; text-align: center; border: 1px solid #ddd;}
+        .profile-header { background: var(--bsu-red); height: 120px; position: relative; }
+        .profile-avatar { width: 120px; height: 120px; background: white; border-radius: 50%; border: 4px solid var(--bsu-gold); position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); display: flex; justify-content: center; align-items: center; font-size: 60px; color: var(--bsu-red); box-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+        
+        .profile-body { padding: 80px 30px 30px 30px; }
+        .profile-body h2 { margin: 0; color: #333; font-size: 26px; }
+        .profile-body p { color: #666; margin-top: 5px; font-size: 16px; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; text-align: left; }
+        .info-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+        .info-box label { font-size: 12px; color: #888; font-weight: bold; text-transform: uppercase; }
+        .info-box div { font-size: 15px; color: #333; font-weight: bold; margin-top: 5px;}
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/student"><i class="fa-solid fa-house" title="Dashboard"></i></a>
+        <a href="/profile"><i class="fa-solid fa-user active-icon" title="My Profile"></i></a>
+        <a href="/my-items"><i class="fa-solid fa-folder-open" title="My Items"></i></a>
+        <a href="/logout" style="color: #FFD700; text-decoration: none; margin-top: auto; margin-bottom: 20px;"><i class="fa-solid fa-right-from-bracket" title="Log Out"></i></a>
+    </nav>
+
+    <main>
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+            </div>
+            <div class="profile-body">
+                <h2>Juan Dela Cruz</h2>
+                <p>BS Computer Engineering</p>
+                
+                <div class="info-grid">
+                    <div class="info-box">
+                        <label>Student ID</label>
+                        <div>20-12345</div>
+                    </div>
+                    <div class="info-box">
+                        <label>Campus</label>
+                        <div>Central Campus</div>
+                    </div>
+                    <div class="info-box">
+                        <label>Email</label>
+                        <div>juan.delacruz@g.batstate-u.edu.ph</div>
+                    </div>
+                    <div class="info-box">
+                        <label>Status</label>
+                        <div style="color: #28a745;">Regular Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
