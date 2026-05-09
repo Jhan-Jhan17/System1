@@ -1,0 +1,8 @@
+spring.datasource.url=jdbc:mysql://localhost:3306/foundit_db?serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# This magic line tells Java to automatically build your SQL tables based on your OOP classes!
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
