@@ -11,7 +11,7 @@ import com.example.demo.Service.ImageStorageService;
 import com.example.demo.model.ClaimRequest;
 import com.example.demo.model.Item;
 import com.example.demo.model.Message;
-import com.example.demo.model.User; // <-- THIS WAS THE MISSING IMPORT!
+import com.example.demo.model.User; 
 import com.example.demo.repository.ClaimRequestRepository;
 import com.example.demo.repository.ItemRepository;
 import com.example.demo.repository.MessageRepository;
@@ -31,15 +31,29 @@ public class FoundItController {
     @Autowired
     private MessageRepository messageRepository;
 
+    // --- UPDATED STUDENT DASHBOARD ROUTE ---
     @GetMapping("/student")
-    public String viewDashboard(Model model, @RequestParam(name = "keyword", required = false) String keyword) {
+    public String viewDashboard(HttpSession session, Model model, @RequestParam(name = "keyword", required = false) String keyword) {
+        
+        // 1. Secure the route
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null) {
+            return "redirect:/"; 
+        }
+
+        // 2. Pass the user to the HTML template to prevent the Error 500 crash
+        model.addAttribute("loggedInUser", loggedInUser);
+        model.addAttribute("user", loggedInUser); 
+
+        // 3. Search logic
         if (keyword != null && !keyword.isEmpty()) {
             model.addAttribute("items", itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword));
         } else {
             model.addAttribute("items", itemRepository.findAll());
         }
+        
         model.addAttribute("newItem", new Item());
-        return "index";
+        return "index"; 
     }
 
     // 1. My Items (Claims & Tickets) Route
