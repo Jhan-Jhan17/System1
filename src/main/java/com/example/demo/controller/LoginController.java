@@ -34,16 +34,25 @@ public class LoginController {
         User user = userRepository.findByEmail(email);
 
         // 2. The Auto-Create Logic
+        // 2. The Auto-Create Logic
         if (user == null) {
             System.out.println("No account found. Auto-creating a new user for: " + email);
             user = new User();
             user.setEmail(email);
             user.setFullName(fullName);
-            // Assign a placeholder Student ID since Google doesn't provide one
-            user.setStudentId("G-" + System.currentTimeMillis()); 
-            user.setPassword("OAUTH_USER"); // Placeholder password
             
-            // Save the brand new user to the Railway Database!
+            // --- THE SMART ID EXTRACTOR ---
+            if (email.endsWith("@g.batstate-u.edu.ph")) {
+                // If email is "24-03424@g.batstate-u.edu.ph", this pulls out just "24-03424"
+                String realId = email.split("@")[0];
+                user.setStudentId(realId);
+            } else {
+                // Fallback for non-university emails
+                user.setStudentId("G-" + System.currentTimeMillis());
+            }
+            // ------------------------------
+            
+            user.setPassword("OAUTH_USER");
             userRepository.save(user);
         } else {
             System.out.println("Welcome back: " + email);
