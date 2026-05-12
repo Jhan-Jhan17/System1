@@ -30,33 +30,35 @@ public class LoginController {
         String email = principal.getAttribute("email");
         String fullName = principal.getAttribute("name");
 
-        // 1. Check if the user already exists (Manual or Google)
+        // 1. Check if the user already exists in the database
         User user = userRepository.findByEmail(email);
-        
+
+        // 2. The Auto-Create Logic
         if (user == null) {
-            // No account found at all. Create a new one.
+            System.out.println("No account found. Auto-creating a new user for: " + email);
             user = new User();
             user.setEmail(email);
             user.setFullName(fullName);
-            user.setStudentId("G-" + System.currentTimeMillis());
-            user.setPassword("OAUTH_USER");
+            // Assign a placeholder Student ID since Google doesn't provide one
+            user.setStudentId("G-" + System.currentTimeMillis()); 
+            user.setPassword("OAUTH_USER"); // Placeholder password
+            
+            // Save the brand new user to the Railway Database!
             userRepository.save(user);
         } else {
-            // 2. ACCOUNT LINKING: If they registered manually before,
-            // the 'user' object now contains their real Student ID!
-            // We don't need to create a new one; we just log them in.
-            System.out.println("Linking Google Login to existing account for: " + email);
+            System.out.println("Welcome back: " + email);
         }
 
-        // 3. Log them into the session using the FOUND user (the one with the real ID)
+        // 3. Log them into the session
         session.setAttribute("loggedInUser", user);
         session.setAttribute("isStudent", true);
-        
+
+        // 4. Route Admins vs Students
         if ("admin@batstate-u.edu.ph".equals(email)) {
             session.setAttribute("isAdmin", true);
             return "redirect:/admin";
         }
-        
+
         return "redirect:/student";
     }
 
