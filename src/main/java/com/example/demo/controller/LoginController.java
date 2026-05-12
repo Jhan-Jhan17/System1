@@ -27,29 +27,31 @@ public class LoginController {
     // Handles Successful Google Login
     @GetMapping("/google-success")
     public String handleGoogleLogin(@AuthenticationPrincipal OAuth2User principal, HttpSession session) {
-        // Extract data from Google
         String email = principal.getAttribute("email");
         String fullName = principal.getAttribute("name");
 
-        // Check if this student already exists in our MySQL database
+        // 1. Check if the user already exists (Manual or Google)
         User user = userRepository.findByEmail(email);
         
         if (user == null) {
-            // First time logging in with Google! Create a new account.
+            // No account found at all. Create a new one.
             user = new User();
             user.setEmail(email);
             user.setFullName(fullName);
-            // Generate a placeholder ID since Google doesn't know their BatStateU ID
-            user.setStudentId("G-" + System.currentTimeMillis()); 
-            user.setPassword("OAUTH_USER"); // They don't need a password, Google handles it
+            user.setStudentId("G-" + System.currentTimeMillis());
+            user.setPassword("OAUTH_USER");
             userRepository.save(user);
+        } else {
+            // 2. ACCOUNT LINKING: If they registered manually before,
+            // the 'user' object now contains their real Student ID!
+            // We don't need to create a new one; we just log them in.
+            System.out.println("Linking Google Login to existing account for: " + email);
         }
 
-        // Log them into YOUR existing session system
+        // 3. Log them into the session using the FOUND user (the one with the real ID)
         session.setAttribute("loggedInUser", user);
         session.setAttribute("isStudent", true);
         
-        // Ensure Admin isn't accidentally set
         if ("admin@batstate-u.edu.ph".equals(email)) {
             session.setAttribute("isAdmin", true);
             return "redirect:/admin";
