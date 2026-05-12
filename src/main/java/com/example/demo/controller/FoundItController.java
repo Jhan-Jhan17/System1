@@ -53,7 +53,7 @@ public class FoundItController {
         }
         
         model.addAttribute("newItem", new Item());
-        return "index"; 
+        return "Index";
     }
 
     // 1. My Items (Claims & Tickets) Route
