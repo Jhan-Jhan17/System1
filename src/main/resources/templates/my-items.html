@@ -1,54 +1,122 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>FOUNDIT: My Items</title>
+    <title>FOUNDIT: Claims & Tickets</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
     <style>
-        :root { --bsu-red: #8B0000; --bsu-gold: #FFD700; --light-gray: #f4f4f4; }
-        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light-gray); position: relative; min-height: 100vh; }
+        :root { --bsu-red: #8B0000; --bsu-gold: #FFD700; --light-gray: #f4f4f9; }
+        body { margin: 0; display: flex; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--light-gray); min-height: 100vh; position: relative; }
+        
         
         body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            content: ''; position: fixed; top: 0; left: 250px; width: calc(100% - 250px); height: 100%;
             background: url('/images/foundit-logo.png') no-repeat center center;
-            background-size: 40%; opacity: 0.5; z-index: -1;
+            background-size: 40%; opacity: 0.12; z-index: -1;
         }
         
-        nav { width: 80px; background: var(--bsu-red); height: 100vh; display: flex; flex-direction: column; align-items: center; padding-top: 20px; position: fixed; z-index: 10; }
-        nav i { color: white; margin-bottom: 30px; font-size: 24px; cursor: pointer; opacity: 0.7; transition: 0.3s; }
-        nav i:hover { opacity: 1; color: var(--bsu-gold); }
-        .active-icon { color: var(--bsu-gold) !important; opacity: 1 !important; border-right: 3px solid var(--bsu-gold); padding-right: 5px;}
-
-        main { margin-left: 80px; width: 100%; z-index: 1; padding: 40px; box-sizing: border-box;}
+        /* UNIFIED SIDEBAR */
+        .sidebar { width: 250px; background: white; height: 100vh; position: fixed; border-right: 1px solid #eee; display: flex; flex-direction: column; z-index: 100;}
+        .sidebar-header { padding: 20px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .sidebar-header img { height: 35px; margin-right: 10px; }
+        .sidebar-header h2 { color: var(--bsu-red); margin: 0; font-size: 22px; }
         
-        .page-header { background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-left: 5px solid var(--bsu-gold);}
+        .map-container { padding: 20px; border-bottom: 1px solid #eee; }
+        #campusMap { height: 150px; width: 100%; border-radius: 10px; border: 1px solid #ddd; z-index: 1;}
+
+        .nav-links { padding: 20px 0; display: flex; flex-direction: column; gap: 5px; }
+        /* SMOOTH TAB TRANSITION */
+        .nav-links a { text-decoration: none; color: #555; padding: 12px 25px; display: flex; align-items: center; font-weight: 500; border-left: 4px solid transparent; transition: all 0.3s ease-in-out; }
+        .nav-links a i { width: 25px; font-size: 18px; }
+        .nav-links a:hover { background: #fff5f5; color: var(--bsu-red); }
+        .active-link { background: #fff5f5; color: var(--bsu-red) !important; border-left: 4px solid var(--bsu-red) !important; }
+
+        /* MAIN CONTENT */
+        main { margin-left: 250px; width: calc(100% - 250px); padding: 40px; box-sizing: border-box;}
+        
+        .page-header { background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--bsu-gold);}
         .page-header h2 { margin: 0; color: var(--bsu-red); }
         .page-header p { margin: 5px 0 0 0; color: #666; font-size: 14px; }
 
-        .table-container { background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .table-container { background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 30px;}
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: #333; font-weight: bold; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
-        tr:hover { background-color: #fcfcfc; }
+        th { background: #f8f9fa; color: #333; font-weight: bold; text-transform: uppercase; font-size: 13px; }
+        
+        .status-PENDING { background: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-APPROVED { background: #e8f5e9; color: #28a745; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-REJECTED { background: #fdf3f3; color: #dc3545; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
 
-        .status-PENDING { background: #fd7e14; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .status-APPROVED { background: #28a745; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .status-REJECTED { background: #dc3545; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        /* QR CODE GRID */
+        .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .qr-card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="/student"><i class="fa-solid fa-house" title="Dashboard"></i></a>
-        <a href="/profile"><i class="fa-solid fa-user" title="My Profile"></i></a>
-        <a href="/my-items"><i class="fa-solid fa-folder-open active-icon" title="My Items"></i></a>
-        <a href="/logout" style="color: #FFD700; text-decoration: none; margin-top: auto; margin-bottom: 20px;"><i class="fa-solid fa-right-from-bracket" title="Log Out"></i></a>
-    </nav>
+    
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img th:src="@{/images/foundit-logo.png}" alt="Logo">
+            <h2>FoundIT</h2>
+        </div>
+        
+        <div class="map-container">
+            <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: bold; color: #888;">ALANGILAN CAMPUS</p>
+            <div id="campusMap"></div>
+        </div>
+
+        <div class="nav-links">
+            <a href="/student"><i class="fa-solid fa-layer-group"></i> Item Database</a>
+            <a href="/my-items" class="active-link"><i class="fa-solid fa-ticket"></i> Claims & Tickets</a>
+            <a href="/contact"><i class="fa-solid fa-inbox"></i> Support Inbox</a>
+            <a href="/profile"><i class="fa-solid fa-user"></i> My Profile</a>
+            <a href="/logout" style="margin-top: auto; color: #dc3545;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
 
     <main>
         <div class="page-header">
-            <h2><i class="fa-solid fa-box-open"></i> My Claim Requests</h2>
-            <p>Track the status of the items you have requested to claim.</p>
+            <h2><i class="fa-solid fa-box-open"></i> My Claims & Tickets</h2>
+            <p>Track the status of your claims and view your approved QR pick-up tickets.</p>
         </div>
 
+        <h3 style="color: #333; margin-top: 30px;"><i class="fa-solid fa-qrcode"></i> Ready for Pickup</h3>
+        <div class="qr-grid">
+            <div th:each="claim : ${myClaims}" th:if="${claim.status == 'APPROVED'}" class="qr-card">
+                <strong th:text="${claim.item.name}" style="color: var(--bsu-red); font-size: 18px; display: block; margin-bottom: 5px;"></strong>
+                <span style="font-size: 12px; color: #28a745; font-weight: bold; background: #e8f5e9; padding: 3px 8px; border-radius: 4px;">APPROVED</span>
+                
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 20px 0;">
+                    <canvas th:id="'qr-' + ${claim.id}" style="display: block; margin: 0; padding: 0; border: 5px solid #f8f9fa; border-radius: 8px;"></canvas>
+                </div>
+                
+                <p style="font-size: 11px; color: #666; margin-bottom: 0;">Present this QR to the Admin Office</p>
+
+                <script th:inline="javascript">
+                    /*<![CDATA[*/
+                    (function() {
+                        var claimId = /*[[${claim.id}]]*/ 0;
+                        var claimToken = /*[[${claim.claimToken}]]*/ "default";
+                        new QRious({
+                            element: document.getElementById('qr-' + claimId),
+                            value: claimToken,
+                            size: 150,
+                            foreground: '#8B0000'
+                        });
+                    })();
+                    /*]]>*/
+                </script>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(myClaims.?[status == 'APPROVED'])}" style="grid-column: 1 / -1; background: rgba(255,255,255,0.8); padding: 20px; border-radius: 8px; color: #888; text-align: center; border: 1px dashed #ccc;">
+                You currently have no approved tickets ready for pickup.
+            </div>
+        </div>
+
+        <h3 style="color: #333; margin-top: 40px;"><i class="fa-solid fa-list-check"></i> Claim Status History</h3>
         <div class="table-container">
             <table>
                 <tr>
@@ -57,11 +125,9 @@
                     <th>Claim Status</th>
                 </tr>
                 <tr th:each="claim : ${myClaims}">
-                    <td style="font-weight: bold; color: var(--bsu-red);" th:text="${claim.item.name}">Laptop</td>
-                    <td style="background: #fdfdfd; font-style: italic;" th:text="${claim.ownershipDetails}">Has a specific sticker</td>
-                    <td>
-                        <span th:class="'status-' + ${claim.status}" th:text="${claim.status}">STATUS</span>
-                    </td>
+                    <td style="font-weight: bold; color: var(--bsu-red);" th:text="${claim.item.name}"></td>
+                    <td style="font-style: italic; color: #555;" th:text="${claim.ownershipDetails}"></td>
+                    <td><span th:class="'status-' + ${claim.status}" th:text="${claim.status}"></span></td>
                 </tr>
                 <tr th:if="${#lists.isEmpty(myClaims)}">
                     <td colspan="3" style="text-align: center; padding: 40px; color: #888; font-style: italic;">
@@ -72,5 +138,11 @@
             </table>
         </div>
     </main>
+
+    <script>
+        var map = L.map('campusMap').setView([13.7842, 121.0748], 17); 
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.marker([13.7842, 121.0748]).addTo(map).bindPopup('<b>BatStateU Alangilan Campus</b>');
+    </script>
 </body>
 </html>

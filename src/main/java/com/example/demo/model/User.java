@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "users") // "user" is a reserved word in SQL, so we name the table "users"
+@Table(name = "users")
 @Data
 public class User {
     @Id
@@ -12,10 +12,14 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    private String studentId; // e.g., 21-60123
+    private String studentId;
     
     private String fullName;
+    
+    @Column(unique = true)
+    private String email;
+    
     private String password;
     
-    private String role; // "STUDENT" or "ADMIN"
+    private String role = "STUDENT";
 }

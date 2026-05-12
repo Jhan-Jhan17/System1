@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ClaimRequestRepository extends JpaRepository<ClaimRequest, Long> {
     List<ClaimRequest> findByStatus(String status);
+    List<ClaimRequest> findByStudentId(String studentId); // NEW: Search by student
 }

@@ -18,7 +18,7 @@ public class SystemTrackerService {
     public long getTotalAvailableItems() {
         // You would need to add findByStatus("AVAILABLE") in your ItemRepository to use this perfectly,
         // but this shows the OOP Service logic!
-        return itemRepository.count(); 
+        return itemRepository.count();
     }
 
     public long getPendingClaimsCount() {

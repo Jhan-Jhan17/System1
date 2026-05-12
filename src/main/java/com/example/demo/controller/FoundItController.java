@@ -11,6 +11,7 @@ import com.example.demo.Service.ImageStorageService;
 import com.example.demo.model.ClaimRequest;
 import com.example.demo.model.Item;
 import com.example.demo.model.Message;
+import com.example.demo.model.User; // <-- THIS WAS THE MISSING IMPORT!
 import com.example.demo.repository.ClaimRequestRepository;
 import com.example.demo.repository.ItemRepository;
 import com.example.demo.repository.MessageRepository;
@@ -22,10 +23,10 @@ public class FoundItController {
     private ItemRepository itemRepository;
 
     @Autowired
-    private ImageStorageService imageStorageService; 
+    private ImageStorageService imageStorageService;
 
     @Autowired
-    private ClaimRequestRepository claimRepository; 
+    private ClaimRequestRepository claimRepository;
     
     @Autowired
     private MessageRepository messageRepository;
@@ -37,15 +38,35 @@ public class FoundItController {
         } else {
             model.addAttribute("items", itemRepository.findAll());
         }
-        model.addAttribute("newItem", new Item()); 
+        model.addAttribute("newItem", new Item());
         return "index";
+    }
+
+    // 1. My Items (Claims & Tickets) Route
+    @GetMapping("/my-items")
+    public String viewMyItems(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null) return "redirect:/"; // Kick out if not logged in
+
+        model.addAttribute("myClaims", claimRepository.findByStudentId(loggedInUser.getStudentId()));
+        return "my-items";
+    }
+
+    // 2. My Profile Route
+    @GetMapping("/profile")
+    public String viewProfile(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null) return "redirect:/"; // Kick out if not logged in
+
+        model.addAttribute("user", loggedInUser);
+        return "profile";
     }
 
     @GetMapping("/contact")
     public String viewContactPage(Model model) {
-        model.addAttribute("message", new Message()); 
-        model.addAttribute("allMessages", messageRepository.findAll()); 
-        model.addAttribute("myClaims", claimRepository.findAll()); 
+        model.addAttribute("message", new Message());
+        model.addAttribute("allMessages", messageRepository.findAll());
+        model.addAttribute("myClaims", claimRepository.findAll());
         return "contact";
     }
 
@@ -58,14 +79,16 @@ public class FoundItController {
     @GetMapping("/admin")
     public String viewAdminPanel(HttpSession session, Model model) {
         if (session.getAttribute("isAdmin") == null) {
-            return "redirect:/"; 
+            return "redirect:/";
         }
         try {
             model.addAttribute("pendingClaims", claimRepository.findAll());
             model.addAttribute("adminMessages", messageRepository.findAll());
+            model.addAttribute("allItems", itemRepository.findAll()); 
         } catch (Exception e) {
             model.addAttribute("pendingClaims", new java.util.ArrayList<>());
             model.addAttribute("adminMessages", new java.util.ArrayList<>());
+            model.addAttribute("allItems", new java.util.ArrayList<>());
         }
         return "admin";
     }
@@ -83,7 +106,6 @@ public class FoundItController {
             return "redirect:/admin?qrgen=success";
             
         } else if ("reject".equals(action)) {
-            // NEW REJECT LOGIC: Set item back to available, delete claim record.
             Item item = claim.getItem();
             if (item != null) {
                 item.setStatus("AVAILABLE");
@@ -114,20 +136,36 @@ public class FoundItController {
         return "redirect:/admin?released=success";
     }
 
+    @PostMapping("/admin/item/delete/{itemId}")
+    public String deleteItem(@PathVariable Long itemId, HttpSession session) {
+        if (session.getAttribute("isAdmin") == null) return "redirect:/";
+
+        Item item = itemRepository.findById(itemId).orElse(null);
+        if (item != null) {
+            for (ClaimRequest claim : claimRepository.findAll()) {
+                if (claim.getItem() != null && claim.getItem().getId().equals(itemId)) {
+                    claimRepository.delete(claim);
+                }
+            }
+            itemRepository.delete(item);
+        }
+        
+        return "redirect:/admin?deleted=success";
+    }
+
     @PostMapping("/report")
     public String reportLostItem(@ModelAttribute Item newItem, @RequestParam("imageFile") MultipartFile file) {
         String filename = imageStorageService.saveImage(file);
-        newItem.setImageFilename(filename); 
+        newItem.setImageFilename(filename);
         itemRepository.save(newItem);
-        return "redirect:/student"; 
+        return "redirect:/student";
     }
 
-    // UPDATED: Added MultipartFile logic for the Image Proof
     @PostMapping("/claim/{itemId}")
-    public String submitClaim(@PathVariable Long itemId, 
-                              @RequestParam String ownershipDetails,
-                              @RequestParam String studentId,
-                              @RequestParam(value = "proofFile", required = false) MultipartFile proofFile) {
+    public String submitClaim(@PathVariable Long itemId,
+                            @RequestParam String ownershipDetails,
+                            @RequestParam String studentId,
+                            @RequestParam(value = "proofFile", required = false) MultipartFile proofFile) {
         Item item = itemRepository.findById(itemId).orElse(null);
         if (item == null) return "redirect:/student?error=notfound";
         
@@ -138,7 +176,6 @@ public class FoundItController {
         claim.setStatus("PENDING");
         claim.setClaimToken("QR-" + System.currentTimeMillis() + "-" + studentId);
 
-        // Process the Image Upload if the student provided one
         if (proofFile != null && !proofFile.isEmpty()) {
             String filename = imageStorageService.saveImage(proofFile);
             claim.setProofImage(filename);

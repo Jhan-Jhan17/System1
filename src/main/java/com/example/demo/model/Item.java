@@ -21,8 +21,10 @@ public class Item {
     private String studentId;
     private LocalDate dateLogged = LocalDate.now();
 
+    private Double latitude;
+    private Double longitude;
     // OOP Relationship: Many Items can be reported by One User
     @ManyToOne
     @JoinColumn(name = "reporter_id")
-    private User reporter; 
+    private User reporter;
 }
