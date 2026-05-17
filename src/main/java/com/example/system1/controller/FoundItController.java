@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.system1.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,14 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.Service.ImageStorageService;
-import com.example.demo.model.ClaimRequest;
-import com.example.demo.model.Item;
-import com.example.demo.model.Message;
-import com.example.demo.model.User; 
-import com.example.demo.repository.ClaimRequestRepository;
-import com.example.demo.repository.ItemRepository;
-import com.example.demo.repository.MessageRepository;
+import com.example.system1.Service.ImageStorageService;
+import com.example.system1.model.ClaimRequest;
+import com.example.system1.model.Item;
+import com.example.system1.model.Message;
+import com.example.system1.model.User; 
+import com.example.system1.repository.ClaimRequestRepository;
+import com.example.system1.repository.ItemRepository;
+import com.example.system1.repository.MessageRepository;
 
 @Controller
 public class FoundItController {
@@ -43,7 +43,7 @@ public class FoundItController {
 
         // 2. Pass the user to the HTML template to prevent the Error 500 crash
         model.addAttribute("loggedInUser", loggedInUser);
-        model.addAttribute("user", loggedInUser); 
+        model.addAttribute("user", loggedInUser);
 
         // 3. Search logic
         if (keyword != null && !keyword.isEmpty()) {

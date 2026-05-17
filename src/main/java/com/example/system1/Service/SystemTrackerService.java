@@ -1,10 +1,10 @@
-package com.example.demo.Service;
+package com.example.system1.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.repository.ClaimRequestRepository;
-import com.example.demo.repository.ItemRepository;
+import com.example.system1.repository.ClaimRequestRepository;
+import com.example.system1.repository.ItemRepository;
 
 @Service
 public class SystemTrackerService {

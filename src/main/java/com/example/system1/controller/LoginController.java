@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.system1.controller;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
+import com.example.system1.model.User;
+import com.example.system1.repository.UserRepository;
 
 @Controller
 public class LoginController {

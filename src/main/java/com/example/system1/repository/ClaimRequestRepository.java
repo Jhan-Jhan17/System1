@@ -1,6 +1,6 @@
-package com.example.demo.repository;
+package com.example.system1.repository;
 
-import com.example.demo.model.ClaimRequest;
+import com.example.system1.model.ClaimRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
